@@ -50,7 +50,7 @@ system("git diff");
 # however automatically add re-add the files for commit which can be
 # quite cumbersome when dealing with repo-wide merges such as Makefile
 # rewrites etc. Prompt for git adding them to lessen the pain.
-foreach ($gr) {
+foreach (split/[\r\n]+/, $gr) {
 	if (/Auto-merging (\S+)/) {
 		my $filename = $1;
 		print "git add $filename Y/n [n]?: ";
