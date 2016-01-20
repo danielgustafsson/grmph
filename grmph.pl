@@ -23,6 +23,9 @@ use strict;
 
 die $0 . " <target branch> [rerere break]\n" if (!scalar(@ARGV) || scalar(@ARGV) > 2);
 
+print "Have you extracted a diff of any changes outside the conflict resolutions? Y/n [n] ";
+exit 0 if getc(STDIN) !~ /[yY]/;
+
 my $target = $ARGV[0];
 my $source = qx(git rev-parse --abbrev-ref HEAD);
 chomp($source);
