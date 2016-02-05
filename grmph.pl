@@ -23,13 +23,12 @@ use strict;
 
 die $0 . " <target branch> [rerere break]\n" if (!scalar(@ARGV) || scalar(@ARGV) > 2);
 
-print "Have you extracted a diff of any changes outside the conflict resolutions? Y/n [n] ";
-exit 0 if getc(STDIN) !~ /[yY]/;
-
 my $target = $ARGV[0];
 my $source = qx(git rev-parse --abbrev-ref HEAD);
 chomp($source);
 my $rerere = $ARGV[1] if (scalar(@ARGV) == 2);
+
+system("git diff $rerere..HEAD > grmph_pre_$rerere-to-HEAD.diff");
 
 open my $BKUP, '>>', 'git_gr.out' or die 'Unable to open backup file!';
 
@@ -67,10 +66,17 @@ system("git config rerere.enabled 0") if (defined($rerere));
 
 close $BKUP;
 
+system("git diff --staged > grmph_post_$rerere-to-HEAD.diff");
+system("interdiff grmph_post_$rerere-to-HEAD.diff grmph_pre_$rerere-to-HEAD.diff > grmph_diff_$rerere-to-HEAD.diff");
+
 print <<EOT;
-Rebase of $source onto $target with merges preserved
-is now in progress. Any remaining conflicts must be fixed
-and added, then commit and run "git rebase --continue" to
-finish the rebase
+Rebase of $source onto $target with merge commit and merge
+conflict resolutions preserved is now in progress.  Any
+remaining conflicts must be fixed and added, then commit
+and run "git rebase --continue" to finish the rebase.  Use
+"git rebase --abort" to revert the partial rebase.
+
+Non-recorded changes (if any) in the merge can be restored
+by using "patch -p1 < grmph_diff_$rerere-to-HEAD.diff"
 EOT
 __END__
