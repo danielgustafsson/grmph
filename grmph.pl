@@ -45,7 +45,8 @@ my $gr = qx(git rebase -p $target);
 print $BKUP $gr;
 
 # Show the diff such that it can be properly inspected before adding
-system("git diff");
+print "Inspect git diff? Y/n [n]?: ";
+system("git diff") if getc(STDIN) =~ /[yY]/;
 
 # git rebase with preserved merges combined with rerere auto resolves
 # most of the merge conflicts otherwise carried forward, it doesn't
