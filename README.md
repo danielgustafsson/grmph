@@ -17,8 +17,9 @@ commit in question.
 
 ## Requirements
 
-Since grmph uses rerere and the `rerere-train.sh` Git contrib script
-internally it requires a Git installation with these present.
+* A Git version with `git rerere` support
+* `rerere-train.sh` Git contrib script
+* interdiff (from patchutils)
 
 ## License
 
