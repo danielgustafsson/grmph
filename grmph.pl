@@ -36,7 +36,8 @@ open my $BKUP, '>>', 'git_gr.out' or die 'Unable to open backup file!';
 # If there was a commit breakpoint to rerere until, enable rerere and
 # train the current git repo on those commits with the rerere-train.sh
 # git contrib script.
-if (defined($rerere)) {
+if (defined($rerere))
+{
 	my $pr = qx(git config rerere.enabled 1; rerere-train.sh ^$rerere $source);
 	print $BKUP $pr;
 }
@@ -54,8 +55,10 @@ system("git diff") if getc(STDIN) =~ /[yY]/;
 # however automatically add re-add the files for commit which can be
 # quite cumbersome when dealing with repo-wide merges such as Makefile
 # rewrites etc. Prompt for git adding them to lessen the pain.
-foreach (split/[\r\n]+/, $gr) {
-	if (/Auto-merging (\S+)/) {
+foreach (split/[\r\n]+/, $gr)
+{
+	if (/Auto-merging (\S+)/)
+	{
 		my $filename = $1;
 		print "git add $filename Y/n [n]?: ";
 		system("git add $filename") if getc(STDIN) =~ /[yY]/;
@@ -65,8 +68,10 @@ foreach (split/[\r\n]+/, $gr) {
 
 # Also allow for easier removal of files in case the merge has done
 # wholesale deletions.
-foreach (`git status`) {
-	if (/deleted by us:\s+(\S+)/) {
+foreach (`git status`)
+{
+	if (/deleted by us:\s+(\S+)/)
+	{
 		my $filename = $1;
 		print "git delete $filename Y/n [n]?: ";
 		system("git rm $filename") if getc(STDIN) =~ /[yY]/;
@@ -79,12 +84,15 @@ system("git config rerere.enabled 0") if (defined($rerere));
 system("git diff --staged > grmph_post_$rerere-to-HEAD.diff");
 system("interdiff grmph_post_$rerere-to-HEAD.diff grmph_pre_$rerere-to-HEAD.diff > grmph_diff_$rerere-to-HEAD.diff");
 
-if (-e "grmph_diff_$rerere-to-HEAD.diff" && -s _) {
+if (-e "grmph_diff_$rerere-to-HEAD.diff" && -s _)
+{
 	print "Non-recorded changes detected, apply? Y/n [n]: ";
 	system("patch -p1 < grmph_diff_$rerere-to-HEAD.diff") if getc(STDIN) =~ /[yY]/;
 	print $BKUP "patch -p1 < grmph_diff_$rerere-to-HEAD.diff\n";
 	$non_rec = "applied";
-} else {
+}
+else
+{
 	$non_rec = "exists";
 }
 
@@ -98,7 +106,8 @@ and run "git rebase --continue" to finish the rebase.  Use
 "git rebase --abort" to revert the partial rebase.
 EOT
 
-if ($non_rec eq "exists") {
+if ($non_rec eq "exists")
+{
 print <<EOT
 
 Non-recorded changes (if any) in the merge can be restored
