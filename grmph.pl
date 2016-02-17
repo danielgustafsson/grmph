@@ -62,6 +62,16 @@ foreach (split/[\r\n]+/, $gr) {
 	}
 }
 
+# Also allow for easier removal of files in case the merge has done
+# wholesale deletions.
+foreach (`git status`) {
+	if (/deleted by us:\s+(\S+)/) {
+		my $filename = $1;
+		print "git delete $filename Y/n [n]?: ";
+		system("git rm $filename") if getc(STDIN) =~ /[yY]/;
+		print $BKUP "git rm $filename\n";
+	}
+}
 # Reset rerere config if we enabled it earlier
 system("git config rerere.enabled 0") if (defined($rerere));
 
