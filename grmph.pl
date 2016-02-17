@@ -23,6 +23,7 @@ use strict;
 
 die $0 . " <target branch> [rerere break]\n" if (!scalar(@ARGV) || scalar(@ARGV) > 2);
 
+my $non_rec;
 my $target = $ARGV[0];
 my $source = qx(git rev-parse --abbrev-ref HEAD);
 chomp($source);
@@ -75,10 +76,19 @@ foreach (`git status`) {
 # Reset rerere config if we enabled it earlier
 system("git config rerere.enabled 0") if (defined($rerere));
 
-close $BKUP;
-
 system("git diff --staged > grmph_post_$rerere-to-HEAD.diff");
 system("interdiff grmph_post_$rerere-to-HEAD.diff grmph_pre_$rerere-to-HEAD.diff > grmph_diff_$rerere-to-HEAD.diff");
+
+if (-e "grmph_diff_$rerere-to-HEAD.diff" && -s _) {
+	print "Non-recorded changes detected, apply? Y/n [n]: ";
+	system("patch -p1 < grmph_diff_$rerere-to-HEAD.diff") if getc(STDIN) =~ /[yY]/;
+	print $BKUP "patch -p1 < grmph_diff_$rerere-to-HEAD.diff\n";
+	$non_rec = "applied";
+} else {
+	$non_rec = "exists";
+}
+
+close $BKUP;
 
 print <<EOT;
 Rebase of $source onto $target with merge commit and merge
@@ -86,8 +96,13 @@ conflict resolutions preserved is now in progress.  Any
 remaining conflicts must be fixed and added, then commit
 and run "git rebase --continue" to finish the rebase.  Use
 "git rebase --abort" to revert the partial rebase.
+EOT
+
+if ($non_rec eq "exists") {
+print <<EOT
 
 Non-recorded changes (if any) in the merge can be restored
 by using "patch -p1 < grmph_diff_$rerere-to-HEAD.diff"
 EOT
+}
 __END__
