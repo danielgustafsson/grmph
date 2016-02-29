@@ -21,13 +21,13 @@
 
 use strict;
 
-die $0 . " <target branch> [rerere break]\n" if (!scalar(@ARGV) || scalar(@ARGV) > 2);
+die $0 . " <target branch> <rerere break>\n" if (scalar(@ARGV) != 2);
 
 my $non_rec;
 my $target = $ARGV[0];
+my $rerere = $ARGV[1];
 my $source = qx(git rev-parse --abbrev-ref HEAD);
 chomp($source);
-my $rerere = $ARGV[1] if (scalar(@ARGV) == 2);
 
 system("git diff $rerere..HEAD > grmph_pre_$rerere-to-HEAD.diff");
 
