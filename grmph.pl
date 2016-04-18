@@ -46,9 +46,12 @@ if (defined($rerere))
 my $gr = qx(git rebase -p $target);
 print $BKUP $gr;
 
-# Show the diff such that it can be properly inspected before adding
+# Show the diff such that it can be properly inspected before adding and
+# allow the option to save it to disc
 print "Inspect git diff? Y/n [n]?: ";
 system("git diff") if getc(STDIN) =~ /[yY]/;
+print "Save diff? Y/n [n]?: ";
+system("git diff > grmph_git_diff_$rerere.diff") if getc(STDIN) =~ /[yY]/;
 
 # git rebase with preserved merges combined with rerere auto resolves
 # most of the merge conflicts otherwise carried forward, it doesn't
