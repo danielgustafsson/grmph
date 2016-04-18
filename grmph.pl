@@ -57,14 +57,25 @@ system("git diff > grmph_git_diff_$rerere.diff") if getc(STDIN) =~ /[yY]/;
 # most of the merge conflicts otherwise carried forward, it doesn't
 # however automatically add re-add the files for commit which can be
 # quite cumbersome when dealing with repo-wide merges such as Makefile
-# rewrites etc. Prompt for git adding them to lessen the pain.
+# rewrites etc. Prompt for git adding them to lessen the pain. In case
+# 'a' is submitted then automatically add all files from now on (handy
+# when the merge brings in hundreds or even more files).
+my $add_all = 'n';
 foreach (split/[\r\n]+/, $gr)
 {
 	if (/Auto-merging (\S+)/)
 	{
 		my $filename = $1;
-		print "git add $filename Y/n [n]?: ";
-		system("git add $filename") if getc(STDIN) =~ /[yY]/;
+		if ($add_all eq 'y')
+		{
+			system("git add $filename");
+			print $BKUP "git add $filename\n";
+			next;
+		}
+		print "git add $filename Y/n/a [n]? : ";
+		my $c = getc(STDIN);
+		$add_all = 'y' if ($c =~ /[aA]/);
+		system("git add $filename") if $c =~ /[aAyY]/;
 		print $BKUP "git add $filename\n";
 	}
 }
