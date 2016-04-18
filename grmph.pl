@@ -115,7 +115,7 @@ close $BKUP;
 print <<EOT;
 Rebase of $source onto $target with merge commit and merge
 conflict resolutions preserved is now in progress.  Any
-remaining conflicts must be fixed and added, then commit
+remaining conflicts must be resolved and added, then commit
 and run "git rebase --continue" to finish the rebase.  Use
 "git rebase --abort" to revert the partial rebase.
 EOT
