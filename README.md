@@ -15,6 +15,12 @@ is the commit sha in history where to start the recording of the conflict
 resolutions (it can be any arbitrary sha as long as it's before the merge
 commit in question.
 
+## Test
+
+There is a rudimentary test harness setup in `test/` with which a sample
+repository structure with a merge requiring a rebase is set up. Create the
+test setup with `make test` and remove again with `make clean`.
+
 ## Requirements
 
 * A Git version with `git rerere` support
