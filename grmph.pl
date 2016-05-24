@@ -38,6 +38,7 @@ sub readc
 }
 
 my $non_rec;
+my $has_diff = 0;
 my $target = $ARGV[0];
 my $rerere = $ARGV[1];
 my $source = qx(git rev-parse --abbrev-ref HEAD);
@@ -110,18 +111,36 @@ foreach (`git status`)
 system("git config rerere.enabled 0") if (defined($rerere));
 
 system("git diff --staged > grmph_post_$rerere-to-HEAD.diff");
-system("interdiff grmph_post_$rerere-to-HEAD.diff grmph_pre_$rerere-to-HEAD.diff > grmph_diff_$rerere-to-HEAD.diff");
 
-if (-e "grmph_diff_$rerere-to-HEAD.diff" && -s _)
+# We need to inspect the post diff to check for actual diff hunks since there
+# might not be any. If there are, allow for re-application and if not skip this
+# step.
+open my $fh, '<', "grmph_post_$rerere-to-HEAD.diff";
+while(<$fh>)
 {
-	print "Non-recorded changes detected, apply? Y/n [n]: ";
-	system("patch -p1 < grmph_diff_$rerere-to-HEAD.diff") if getc(STDIN) =~ /[yY]/;
-	print $BKUP "patch -p1 < grmph_diff_$rerere-to-HEAD.diff\n";
-	$non_rec = "applied";
+	if (/\+\+\+/)
+	{
+		$has_diff = 1;
+		last;
+	}
 }
-else
+close $fh;
+
+if ($has_diff eq 1)
 {
-	$non_rec = "exists";
+	system("interdiff grmph_post_$rerere-to-HEAD.diff grmph_pre_$rerere-to-HEAD.diff > grmph_diff_$rerere-to-HEAD.diff");
+
+	if (-e "grmph_diff_$rerere-to-HEAD.diff" && -s _)
+	{
+		print "Non-recorded changes detected, apply? Y/n [n]: ";
+		system("patch -p1 < grmph_diff_$rerere-to-HEAD.diff") if readc(1) =~ /[yY]/;
+		print $BKUP "patch -p1 < grmph_diff_$rerere-to-HEAD.diff\n";
+		$non_rec = "applied";
+	}
+	else
+	{
+		$non_rec = "exists";
+	}
 }
 
 close $BKUP;
