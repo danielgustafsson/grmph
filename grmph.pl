@@ -20,8 +20,22 @@
 # THE SOFTWARE.
 
 use strict;
+use Term::ReadKey;
 
 die $0 . " <target branch> <rerere break>\n" if (scalar(@ARGV) != 2);
+
+# Open up for reading user input via STDIN
+open my $tty, '<', '/dev/tty';
+
+sub readc
+{
+	my ($nl) = shift;
+	ReadMode "raw";
+	my $c = ReadKey 0, $tty;
+	ReadMode "normal";
+	print "\n" if defined($nl);
+	return $c;
+}
 
 my $non_rec;
 my $target = $ARGV[0];
@@ -49,9 +63,9 @@ print $BKUP $gr;
 # Show the diff such that it can be properly inspected before adding and
 # allow the option to save it to disc
 print "Inspect git diff? Y/n [n]?: ";
-system("git diff") if getc(STDIN) =~ /[yY]/;
+system("git diff") if readc(1) =~ /[yY]/;
 print "Save diff? Y/n [n]?: ";
-system("git diff > grmph_git_diff_$rerere.diff") if getc(STDIN) =~ /[yY]/;
+system("git diff > grmph_git_diff_$rerere.diff") if readc(1) =~ /[yY]/;
 
 # git rebase with preserved merges combined with rerere auto resolves
 # most of the merge conflicts otherwise carried forward, it doesn't
@@ -73,7 +87,7 @@ foreach (split/[\r\n]+/, $gr)
 			next;
 		}
 		print "git add $filename Y/n/a [n]? : ";
-		my $c = getc(STDIN);
+		my $c = readc(1);
 		$add_all = 'y' if ($c =~ /[aA]/);
 		system("git add $filename") if $c =~ /[aAyY]/;
 		print $BKUP "git add $filename\n";
@@ -88,7 +102,7 @@ foreach (`git status`)
 	{
 		my $filename = $1;
 		print "git delete $filename Y/n [n]?: ";
-		system("git rm $filename") if getc(STDIN) =~ /[yY]/;
+		system("git rm $filename") if readc(1) =~ /[yY]/;
 		print $BKUP "git rm $filename\n";
 	}
 }

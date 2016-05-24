@@ -20,6 +20,7 @@ commit in question.
 * A Git version with `git rerere` support
 * `rerere-train.sh` Git contrib script
 * interdiff (from patchutils)
+* Term::ReadKey Perl module
 
 ## License
 
