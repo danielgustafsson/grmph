@@ -43,6 +43,8 @@ git merge mergemarker
 sed -i '' -e's/^[=]\{7\}$//' -e'$d' -e'1d' foo
 git add foo
 git commit -qm "forkclone: merge upstream"
+echo "Post Merge" >> foo
+git commit -qam "forkclone: alter post merge"
 cd ../
 
 # Now diverge the fork from the clone of the fork from underneath the merge
