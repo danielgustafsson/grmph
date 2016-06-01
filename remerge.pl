@@ -215,7 +215,7 @@ if (1)
 		"help" => sub { Usage() },
 	);
 
-	open $cmd_log, ">", "g2_command_log.txt" || die;
+	open $cmd_log, ">", "remerge_command_log.txt" || die;
 
 	# Ensure we have two trees to work with and that they are suffixed with a
 	# trailing slash to avoid having to explicitly do that all the time..
@@ -226,9 +226,6 @@ if (1)
 
 	ParseRebaseFile($rebase_list) unless (!$rebase_list);
 	ParseMergeCommitFile($merge_list, 1) unless (!$merge_list);
-
-	print "XXX:\n\t$merge_tree\n\t$source_tree\n";
-	exit 1;
 
 	print "* Setting up workspace..\n";
 	make_path($output_dir . '/patches/conflict') || die;
